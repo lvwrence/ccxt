@@ -311,7 +311,7 @@ module.exports = class bithumb extends Exchange {
         let market = this.market (symbol);
         let request = {};
         let response = await this.privatePostInfoUserTransactions (this.extend (request, params));
-        return this.parseTrades (response, market, since, limit);
+        return response
     }
 
     async withdraw (currency, amount, address, tag = undefined, params = {}) {
