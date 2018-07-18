@@ -277,6 +277,10 @@ module.exports = class bithumb extends Exchange {
         };
     }
 
+    async fetchOrder(id, symbol = undefined, params = {}) {
+      console.log('fetching order', id)
+    }
+
     async cancelOrder (id, symbol = undefined, params = {}) {
         let side_in_params = ('side' in params);
         if (!side_in_params)
