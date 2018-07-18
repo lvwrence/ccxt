@@ -278,7 +278,6 @@ module.exports = class bithumb extends Exchange {
     }
 
     async fetchOrder(id, symbol = undefined, params = {}) {
-      console.log('fetching order', id)
       if (typeof symbol === 'undefined')
           throw new ExchangeError (this.id + ' fetchOrder requires a symbol argument');
       await this.loadMarkets ();
