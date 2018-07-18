@@ -304,6 +304,16 @@ module.exports = class bithumb extends Exchange {
         });
     }
 
+    async fetchMyTrades (symbol = undefined, since = undefined, limit = undefined, params = {}) {
+        if (typeof symbol === 'undefined')
+            throw new ExchangeError (this.id + ' fetchMyTrades requires a symbol argument');
+        await this.loadMarkets ();
+        let market = this.market (symbol);
+        let request = {};
+        let response = await this.privatePostInfoUserTransactions (this.extend (request, params));
+        return this.parseTrades (response, market, since, limit);
+    }
+
     async withdraw (currency, amount, address, tag = undefined, params = {}) {
         this.checkAddress (address);
         let request = {
