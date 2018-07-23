@@ -57,6 +57,7 @@ module.exports = class upbit extends Exchange {
             'markets': 'KRW-BTC',
         };
         let response = await this.publicGetOrderbook (this.extend (request, params));
+        console.log(response)
         let orderbook = response['data'];
         console.log(orderbook)
         let timestamp = parseInt (orderbook['timestamp']);
