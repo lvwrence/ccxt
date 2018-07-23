@@ -54,14 +54,26 @@ module.exports = class upbit extends Exchange {
     async fetchOrderBook (symbol, limit = undefined, params = {}) {
         // KRW/BTC -> KRW-BTC
         let request = {
-            'markets': 'KRW-BTC',
+            'markets': symbol.replace('/', '-'),
         };
         let response = await this.publicGetOrderbook (this.extend (request, params));
-        console.log(response)
-        let orderbook = response['data'];
-        console.log(orderbook)
+        let orderbook = response[0];
         let timestamp = parseInt (orderbook['timestamp']);
-        return this.parseOrderBook (orderbook, timestamp, 'bids', 'asks', 'price', 'quantity');
+        let result = {
+          'bids': [],
+          'asks': [],
+          'timestamp': timestamp,
+        };
+
+        for (let i = 0; i < orderbook['orderbook_units'].length; i++) {
+          let order = orderbook['orderbook_units'][i];
+          let bid = [order['bid_price'], order['bid_size']];
+          result['bids'].push(bid);
+          let ask = [order['ask_price'], order['ask_size']];
+          result['asks'].push(ask);
+        }
+
+        return result;
     }
 
     nonce () {
