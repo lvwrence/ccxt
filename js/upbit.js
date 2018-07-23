@@ -52,9 +52,10 @@ module.exports = class upbit extends Exchange {
     }
 
     async fetchOrderBook (symbol, limit = undefined, params = {}) {
-        // KRW/BTC -> KRW-BTC
+        // BTC/KRW -> KRW-BTC
+        let symbols = symbol.split('/');
         let request = {
-            'markets': symbol.replace('/', '-'),
+            'markets': symbols[0] + '-' + symbols[1],
         };
         let response = await this.publicGetOrderbook (this.extend (request, params));
         let orderbook = response[0];
