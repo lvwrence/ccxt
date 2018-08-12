@@ -132,7 +132,11 @@ module.exports = class upbit extends Exchange {
             this.checkRequiredCredentials ();
             body = this.urlencode (this.extend({}, query))
             let nonce = this.nonce ().toString ();
-            const payload = {access_key: this.apiKey, nonce }
+            const payload = {
+              access_key: this.apiKey,
+              nonce,
+              query: body,
+            }
             const token = sign(payload, this.secret)
             headers = {
                 'Accept': 'application/json',
