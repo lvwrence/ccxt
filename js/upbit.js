@@ -135,8 +135,13 @@ module.exports = class upbit extends Exchange {
             const payload = {
               access_key: this.apiKey,
               nonce,
-              query: body,
             }
+
+            console.log('Query:', query)
+            if (params !== {}) {
+              payload.query = body
+            }
+
             const token = sign(payload, this.secret)
             headers = {
                 'Accept': 'application/json',
