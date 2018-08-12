@@ -154,8 +154,12 @@ module.exports = class upbit extends Exchange {
               nonce,
             }
 
-            if (params !== {} && method !== 'GET') {
+            if (params !== {}) {
               payload.query = body
+            }
+
+            if (method === 'GET') {
+              url += '?' + this.urlencode (query);
             }
 
             const token = sign(payload, this.secret)
