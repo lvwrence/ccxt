@@ -137,8 +137,7 @@ module.exports = class upbit extends Exchange {
               nonce,
             }
 
-            console.log('Query:', query)
-            if (params !== {}) {
+            if (params !== {} && method !== 'GET') {
               payload.query = body
             }
 
