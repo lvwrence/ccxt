@@ -35,6 +35,9 @@ module.exports = class upbit extends Exchange {
                     ],
                 },
                 'private': {
+                    'get': [
+                      'accounts',
+                    ],
                     'post': [
                     ],
                 },
@@ -75,6 +78,11 @@ module.exports = class upbit extends Exchange {
         }
 
         return result;
+    }
+
+    async fetchBalance (params = {}) {
+      let response = await this.privateGetAccounts (params)
+      console.log(response)
     }
 
     nonce () {
