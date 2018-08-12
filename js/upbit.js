@@ -108,9 +108,9 @@ module.exports = class upbit extends Exchange {
 
     async createOrder (symbol, type, side, amount, price = undefined, params = {}) {
       if (side === 'buy') {
-        side = 'ask'
-      } else if (side === 'sell') {
         side = 'bid'
+      } else if (side === 'sell') {
+        side = 'ask'
       }
 
       let request = undefined
