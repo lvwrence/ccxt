@@ -88,7 +88,11 @@ module.exports = class upbit extends Exchange {
 
     async fetchBalance (params = {}) {
       let response = await this.privateGetAccounts (params)
-      return response // TODO: normalize this
+      const free = {}
+      for (const coin of response) {
+        free[coin.currency] = parseFloat(coin.balance)
+      }
+      return { free }
     }
 
     async fetchMyTrades (symbol = undefined, since = undefined, limit = undefined, params = {}) {
