@@ -19,6 +19,8 @@ module.exports = class upbit extends Exchange {
                 'CORS': true,
                 'fetchTickers': true,
                 'withdraw': true,
+                'fetchMyTrades': true,
+                'fetchBalance': true,
             },
             'urls': {
                 'logo': 'https://user-images.githubusercontent.com/1294454/30597177-ea800172-9d5e-11e7-804c-b9d4fa9b56b0.jpg',
