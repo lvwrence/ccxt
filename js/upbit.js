@@ -183,6 +183,6 @@ module.exports = class upbit extends Exchange {
     normalizeSymbol(symbol) {
       // BTC/KRW -> KRW-BTC
       let symbols = symbol.split('/');
-      return symbols[1] + '-' + symbols[0],
+      return symbols[1] + '-' + symbols[0]
     }
 };
