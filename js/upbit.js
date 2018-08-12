@@ -38,6 +38,7 @@ module.exports = class upbit extends Exchange {
                 'private': {
                     'get': [
                       'accounts',
+                      'orders',
                     ],
                     'post': [
                     ],
@@ -84,6 +85,18 @@ module.exports = class upbit extends Exchange {
     async fetchBalance (params = {}) {
       let response = await this.privateGetAccounts (params)
       console.log(response)
+      return response // TODO: normalize this
+    }
+
+    async fetchMyTrades (symbol = undefined, since = undefined, limit = undefined, params = {}) {
+      if (typeof symbol === 'undefined')
+          throw new ExchangeError (this.id + ' fetchMyTrades requires a symbol argument');
+      let request = {
+        market: symbol,
+        state: 'done',
+      }
+      let response = await this.privateGetOrders (this.extend (request, params));
+      return response
     }
 
     nonce () {
