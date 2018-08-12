@@ -45,6 +45,9 @@ module.exports = class upbit extends Exchange {
                     'post': [
                       'orders',
                     ],
+                    'delete': [
+                      'order',
+                    ],
                 },
             },
             'fees': {
@@ -121,6 +124,10 @@ module.exports = class upbit extends Exchange {
 
       let response = await this.privatePostOrders(this.extend (request, params));
       return response
+    }
+
+    async cancelOrder(id, symbol = undefined, params = {}) {
+      return await this.privateDeleteOrder({ uuid: id })
     }
 
     nonce () {
