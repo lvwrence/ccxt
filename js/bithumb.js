@@ -308,8 +308,15 @@ module.exports = class bithumb extends Exchange {
             throw new ExchangeError (this.id + ' fetchMyTrades requires a symbol argument');
         await this.loadMarkets ();
         let market = this.market (symbol);
-        let request = {};
+
+        // We get a symbol like 'ZRX/KRW' -- since all trades are fiat, just get the first part (ZRX)
+        let request = {
+          searchGb: '0',
+          currency: symbol.split('/')[0],
+        };
         let response = await this.privatePostInfoUserTransactions (this.extend (request, params));
+
+        // TODO: normalize this
         return response
     }
 
