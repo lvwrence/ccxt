@@ -311,13 +311,47 @@ module.exports = class bithumb extends Exchange {
 
         // We get a symbol like 'ZRX/KRW' -- since all trades are fiat, just get the first part (ZRX)
         let request = {
-          searchGb: '0',
-          currency: symbol.split('/')[0],
+            searchGb: '0',
+            currency: symbol.split('/')[0],
         };
         let response = await this.privatePostInfoUserTransactions (this.extend (request, params));
 
-        // TODO: normalize this
-        return response
+        const transactions = response['data']
+
+        let txns = []
+        for (let txn of transactions) {
+            // Skip if not a buy or a sell.
+            if (txn['search'] !== '1' && txn['search'] !== '2') {
+              continue
+            }
+
+            const side = txn['search'] === '1' ? 'buy' : 'sell'
+            const coinAmount = Math.abs(parseFloat(txn['units'].replace(/ /g, ''))) // cuz units is like '+ 123456'
+            const price = parseInt(txn[`${trader.coin.toLowerCase()}1krw`], 10)
+            const fee = side === 'buy' ? parseFloat(txn['fee']) * price : parseFloat(txn['fee'])
+            // txn['price'] is the price of the transaction.
+            const totalWithoutFeeIfSell = Math.abs(parseInt(txn['price'], 10))
+            const total = side === 'buy' ? totalWithoutFeeIfSell : totalWithoutFeeIfSell + fee
+            txns.push({
+              info: txn,
+              id: null,
+              timestamp: txn['transfer_date'],
+              datetime: null,
+              symbol,
+              order: null,
+              type: null,
+              side,
+              takerOrMaker: 'taker',
+              price,
+              amount: coinAmount, // Including fee if buy
+              cost: total, // Including fee if sell
+              fee: {
+                cost: fee
+              },
+            })
+        }
+
+        return txns
     }
 
     async withdraw (currency, amount, address, tag = undefined, params = {}) {
