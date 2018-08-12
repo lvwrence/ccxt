@@ -4,6 +4,7 @@
 
 const Exchange = require ('./base/Exchange');
 const { ExchangeError } = require ('./base/errors');
+const sign = require('jsonwebtoken').sign;
 
 //  ---------------------------------------------------------------------------
 
@@ -81,6 +82,8 @@ module.exports = class upbit extends Exchange {
     }
 
     async fetchBalance (params = {}) {
+      await this.loadMarkets ();
+
       let response = await this.privateGetAccounts (params)
       console.log(response)
     }
@@ -98,19 +101,14 @@ module.exports = class upbit extends Exchange {
                 url += '?' + this.urlencode (query);
         } else {
             this.checkRequiredCredentials ();
-            body = this.urlencode (this.extend ({
-                'endpoint': endpoint,
-            }, query));
+            body = this.urlencode (this.extend({}, query))
             let nonce = this.nonce ().toString ();
-            let auth = endpoint + '\0' + body + '\0' + nonce;
-            let signature = this.hmac (this.encode (auth), this.encode (this.secret), 'sha512');
-            let signature64 = this.decode (this.stringToBase64 (this.encode (signature)));
+            const payload = {access_key: this.apiKey, nonce }
+            const token = sign(payload, this.secret)
             headers = {
                 'Accept': 'application/json',
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Api-Key': this.apiKey,
-                'Api-Sign': signature64.toString (),
-                'Api-Nonce': nonce,
+                'Authorization': `Bearer ${token}`
             };
         }
         return { 'url': url, 'method': method, 'body': body, 'headers': headers };
