@@ -101,6 +101,7 @@ module.exports = class upbit extends Exchange {
       let request = {
         market: this.normalizeSymbol(symbol),
         state: 'done',
+        order_by: 'desc',
       }
       let response = await this.privateGetOrders (this.extend (request, params));
       return response
