@@ -82,8 +82,6 @@ module.exports = class upbit extends Exchange {
     }
 
     async fetchBalance (params = {}) {
-      await this.loadMarkets ();
-
       let response = await this.privateGetAccounts (params)
       console.log(response)
     }
