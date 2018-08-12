@@ -43,6 +43,7 @@ module.exports = class upbit extends Exchange {
                       'orders',
                     ],
                     'post': [
+                      'orders',
                     ],
                 },
             },
@@ -59,10 +60,8 @@ module.exports = class upbit extends Exchange {
     }
 
     async fetchOrderBook (symbol, limit = undefined, params = {}) {
-        // BTC/KRW -> KRW-BTC
-        let symbols = symbol.split('/');
         let request = {
-            'markets': symbols[1] + '-' + symbols[0],
+            'markets': this.normalizeSymbol(symbol)
         };
         let response = await this.publicGetOrderbook (this.extend (request, params));
         let orderbook = response[0];
@@ -86,7 +85,6 @@ module.exports = class upbit extends Exchange {
 
     async fetchBalance (params = {}) {
       let response = await this.privateGetAccounts (params)
-      console.log(response)
       return response // TODO: normalize this
     }
 
@@ -94,10 +92,28 @@ module.exports = class upbit extends Exchange {
       if (typeof symbol === 'undefined')
           throw new ExchangeError (this.id + ' fetchMyTrades requires a symbol argument');
       let request = {
-        market: symbol,
+        market: this.normalizeSymbol(symbol),
         state: 'done',
       }
       let response = await this.privateGetOrders (this.extend (request, params));
+      return response
+    }
+
+    async createOrder (symbol, type, side, amount, price = undefined, params = {}) {
+      let request = undefined
+      if (type === 'limit') {
+        request = {
+          market: this.normalizeSymbol(symbol),
+          side: side,
+          volume: amount,
+          price: price,
+          ord_type: 'limit',
+        }
+      } else {
+        throw new ExchangeError('Order type not supported.')
+      }
+
+      let response = await this.privatePostOrders(this.extend (request, params));
       return response
     }
 
@@ -162,5 +178,11 @@ module.exports = class upbit extends Exchange {
             throw new ExchangeError (this.id + ' ' + this.json (response));
         }
         return response;
+    }
+
+    normalizeSymbol(symbol) {
+      // BTC/KRW -> KRW-BTC
+      let symbols = symbol.split('/');
+      return symbols[1] + '-' + symbols[0],
     }
 };
