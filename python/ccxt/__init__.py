@@ -22,7 +22,7 @@
 
 # ----------------------------------------------------------------------------
 
-__version__ = '1.16.86'
+__version__ = '1.17.115'
 
 # ----------------------------------------------------------------------------
 
@@ -57,6 +57,8 @@ from ccxt.base.errors import InvalidAddress                 # noqa: F401
 from ccxt.base.errors import AddressPending                 # noqa: F401
 from ccxt.base.errors import BadResponse                    # noqa: F401
 from ccxt.base.errors import NullResponse                   # noqa: F401
+from ccxt.base.errors import OrderImmediatelyFillable       # noqa: F401
+from ccxt.base.errors import OrderNotFillable               # noqa: F401
 
 
 from ccxt._1broker import _1broker                          # noqa: F401
@@ -65,6 +67,7 @@ from ccxt.acx import acx                                    # noqa: F401
 from ccxt.allcoin import allcoin                            # noqa: F401
 from ccxt.anxpro import anxpro                              # noqa: F401
 from ccxt.anybits import anybits                            # noqa: F401
+from ccxt.bcex import bcex                                  # noqa: F401
 from ccxt.bibox import bibox                                # noqa: F401
 from ccxt.bigone import bigone                              # noqa: F401
 from ccxt.binance import binance                            # noqa: F401
@@ -172,9 +175,11 @@ from ccxt.quoinex import quoinex                            # noqa: F401
 from ccxt.rightbtc import rightbtc                          # noqa: F401
 from ccxt.southxchange import southxchange                  # noqa: F401
 from ccxt.surbitcoin import surbitcoin                      # noqa: F401
+from ccxt.theocean import theocean                          # noqa: F401
 from ccxt.therock import therock                            # noqa: F401
 from ccxt.tidebit import tidebit                            # noqa: F401
 from ccxt.tidex import tidex                                # noqa: F401
+from ccxt.uex import uex                                    # noqa: F401
 from ccxt.urdubit import urdubit                            # noqa: F401
 from ccxt.vaultoro import vaultoro                          # noqa: F401
 from ccxt.vbtc import vbtc                                  # noqa: F401
@@ -193,6 +198,7 @@ exchanges = [
     'allcoin',
     'anxpro',
     'anybits',
+    'bcex',
     'bibox',
     'bigone',
     'binance',
@@ -300,9 +306,11 @@ exchanges = [
     'rightbtc',
     'southxchange',
     'surbitcoin',
+    'theocean',
     'therock',
     'tidebit',
     'tidex',
+    'uex',
     'urdubit',
     'vaultoro',
     'vbtc',

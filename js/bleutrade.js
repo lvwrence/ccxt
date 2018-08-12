@@ -15,6 +15,7 @@ module.exports = class bleutrade extends bittrex {
             'countries': [ 'BR' ], // Brazil
             'rateLimit': 1000,
             'version': 'v2',
+            'certified': false,
             'has': {
                 'CORS': true,
                 'fetchTickers': true,
@@ -128,7 +129,6 @@ module.exports = class bleutrade extends bittrex {
                 'quoteId': quoteId,
                 'active': active,
                 'info': market,
-                'lot': Math.pow (10, -precision['amount']),
                 'precision': precision,
                 'limits': {
                     'amount': {

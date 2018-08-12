@@ -31,6 +31,8 @@ class cobinhood (Exchange):
                 'fetchOrder': True,
                 'fetchDepositAddress': True,
                 'createDepositAddress': True,
+                'fetchDeposits': True,
+                'fetchWithdrawals': True,
                 'withdraw': False,
                 'fetchMyTrades': True,
             },
@@ -148,6 +150,7 @@ class cobinhood (Exchange):
             },
             'commonCurrencies': {
                 'SMT': 'SocialMedia.Market',
+                'MTN': 'Motion Token',
             },
         })
 
@@ -241,10 +244,16 @@ class cobinhood (Exchange):
         return result
 
     def parse_ticker(self, ticker, market=None):
+        symbol = None
         if market is None:
             marketId = self.safe_string(ticker, 'trading_pair_id')
-            market = self.find_market(marketId)
-        symbol = None
+            if marketId in self.markets_by_id:
+                market = self.markets_by_id[marketId]
+            else:
+                baseId, quoteId = marketId.split('-')
+                base = self.common_currency_code(baseId)
+                quote = self.common_currency_code(quoteId)
+                symbol = base + '/' + quote
         if market is not None:
             symbol = market['symbol']
         timestamp = self.safe_integer(ticker, 'timestamp')
@@ -308,7 +317,7 @@ class cobinhood (Exchange):
         price = self.safe_float(trade, 'price')
         amount = self.safe_float(trade, 'size')
         cost = price * amount
-        side = trade['maker_side'] == 'sell' if 'bid' else 'buy'
+        side = 'sell' if (trade['maker_side'] == 'bid') else 'buy'
         return {
             'info': trade,
             'timestamp': timestamp,
@@ -538,6 +547,89 @@ class cobinhood (Exchange):
             'currency': code,
             'address': address,
             'info': response,
+        }
+
+    async def withdraw(self, code, amount, address, params={}):
+        await self.load_markets()
+        currency = self.currency(code)
+        response = await self.privatePostWalletWithdrawals(self.extend({
+            'currency': currency['id'],
+            'amount': amount,
+            'address': address,
+        }, params))
+        return {
+            'id': response['result']['withdrawal_id'],
+            'info': response,
+        }
+
+    async def fetch_deposits(self, code=None, since=None, limit=None, params={}):
+        await self.load_markets()
+        if code is None:
+            raise ExchangeError(self.id + ' fetchDeposits() requires a currency code arguemnt')
+        currency = self.currency(code)
+        request = {
+            'currency': currency['id'],
+        }
+        response = await self.privateGetWalletDeposits(self.extend(request, params))
+        return self.parseTransactions(response['result']['deposits'], 'deposit', None, limit)
+
+    async def fetch_withdrawals(self, code=None, since=None, limit=None, params={}):
+        await self.load_markets()
+        if code is None:
+            raise ExchangeError(self.id + ' fetchWithdrawals() requires a currency code arguemnt')
+        currency = self.currency(code)
+        request = {
+            'currency': currency['id'],
+        }
+        response = await self.privateGetWalletWithdrawals(self.extend(request, params))
+        return self.parseTransactions(response['result']['withdrawals'], 'withdraw', None, limit)
+
+    def parse_transaction_status(self, status):
+        statuses = {
+            'tx_pending_two_factor_auth': 'pending',
+            'tx_pending_email_auth': 'pending',
+            'tx_pending_approval': 'pending',
+            'tx_approved': 'pending',
+            'tx_processing': 'pending',
+            'tx_pending': 'pending',
+            'tx_sent': 'pending',
+            'tx_cancelled': 'canceled',
+            'tx_timeout': 'error',
+            'tx_invalid': 'error',
+            'tx_rejected': 'error',
+            'tx_confirmed': 'ok',
+        }
+        return statuses[status] if (status in list(statuses.keys())) else status.lower()
+
+    def parse_transaction(self, transaction, currency=None):
+        timestamp = self.safe_integer(transaction, 'created_at')
+        datetime = None
+        if timestamp is not None:
+            datetime = self.iso8601(timestamp)
+        code = None
+        if currency is None:
+            currencyId = transaction['currency']
+            if currencyId in self.currencies_by_id:
+                currency = self.currencies_by_id[currencyId]
+        if currency is not None:
+            code = currency['code']
+        type = None
+        return {
+            'info': transaction,
+            'id': self.safe_string(transaction, 'withdrawal_id'),
+            'txid': self.safe_string(transaction, 'txhash'),
+            'timestamp': timestamp,
+            'datetime': datetime,
+            'address': None,  # or is it defined?
+            'type': type,  # direction of the transaction,('deposit' | 'withdraw')
+            'amount': self.safe_float(transaction, 'amount'),
+            'currency': code,
+            'status': self.parse_transaction_status(transaction['status']),
+            'updated': None,
+            'fee': {
+                'cost': self.safe_float(transaction, 'fee'),
+                'rate': None,
+            },
         }
 
     def sign(self, path, api='public', method='GET', params={}, headers=None, body=None):

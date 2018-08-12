@@ -54,6 +54,7 @@ class braziliex extends Exchange {
             ),
             'commonCurrencies' => array (
                 'EPC' => 'Epacoin',
+                'ABC' => 'Anti Bureaucracy Coin',
             ),
             'fees' => array (
                 'trading' => array (
@@ -149,7 +150,6 @@ class braziliex extends Exchange {
                 'amount' => 8,
                 'price' => 8,
             );
-            $lot = pow (10, -$precision['amount']);
             $result[] = array (
                 'id' => $id,
                 'symbol' => strtoupper ($symbol),
@@ -158,11 +158,10 @@ class braziliex extends Exchange {
                 'baseId' => $baseId,
                 'quoteId' => $quoteId,
                 'active' => $active,
-                'lot' => $lot,
                 'precision' => $precision,
                 'limits' => array (
                     'amount' => array (
-                        'min' => $lot,
+                        'min' => pow (10, -$precision['amount']),
                         'max' => pow (10, $precision['amount']),
                     ),
                     'price' => array (

@@ -297,6 +297,7 @@ declare module 'ccxt' {
     export class allcoin extends okcoinusd {}
     export class anxpro extends Exchange {}
     export class anybits extends bitsane {}
+    export class bcex extends Exchange {}
     export class bibox extends Exchange {}
     export class bigone extends Exchange {}
     export class binance extends Exchange {}
@@ -404,9 +405,11 @@ declare module 'ccxt' {
     export class rightbtc extends Exchange {}
     export class southxchange extends Exchange {}
     export class surbitcoin extends foxbit {}
+    export class theocean extends Exchange {}
     export class therock extends Exchange {}
     export class tidebit extends Exchange {}
     export class tidex extends liqui {}
+    export class uex extends Exchange {}
     export class urdubit extends foxbit {}
     export class vaultoro extends Exchange {}
     export class vbtc extends foxbit {}

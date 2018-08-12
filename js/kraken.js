@@ -15,6 +15,7 @@ module.exports = class kraken extends Exchange {
             'countries': [ 'US' ],
             'version': '0',
             'rateLimit': 3000,
+            'certified': true,
             'has': {
                 'createDepositAddress': true,
                 'fetchDepositAddress': true,
@@ -197,6 +198,7 @@ module.exports = class kraken extends Exchange {
                 'EAPI:Rate limit exceeded': DDoSProtection,
                 'EQuery:Unknown asset': ExchangeError,
                 'EGeneral:Internal error': ExchangeNotAvailable,
+                'EGeneral:Temporary lockout': DDoSProtection,
             },
         });
     }

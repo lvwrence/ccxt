@@ -27,6 +27,7 @@ class exx (Exchange):
             'name': 'EXX',
             'countries': ['CN'],
             'rateLimit': 1000 / 10,
+            'userAgent': self.userAgents['chrome'],
             'has': {
                 'fetchOrder': True,
                 'fetchTickers': True,
@@ -41,6 +42,7 @@ class exx (Exchange):
                 'www': 'https://www.exx.com/',
                 'doc': 'https://www.exx.com/help/restApi',
                 'fees': 'https://www.exx.com/help/rate',
+                'referral': 'https://www.exx.com/r/fde4260159e53ab8a58cc9186d35501f',
             },
             'api': {
                 'public': {
@@ -94,7 +96,7 @@ class exx (Exchange):
                 },
             },
             'commonCurrencies': {
-                'CAN': 'Content and AD Network',
+                'TV': 'TIV',  # Ti-Value
             },
             'exceptions': {
                 '103': AuthenticationError,
@@ -119,7 +121,6 @@ class exx (Exchange):
                 'amount': int(market['amountScale']),
                 'price': int(market['priceScale']),
             }
-            lot = math.pow(10, -precision['amount'])
             result.append({
                 'id': id,
                 'symbol': symbol,
@@ -128,11 +129,10 @@ class exx (Exchange):
                 'baseId': baseId,
                 'quoteId': quoteId,
                 'active': active,
-                'lot': lot,
                 'precision': precision,
                 'limits': {
                     'amount': {
-                        'min': lot,
+                        'min': math.pow(10, -precision['amount']),
                         'max': math.pow(10, precision['amount']),
                     },
                     'price': {
@@ -360,6 +360,9 @@ class exx (Exchange):
             }, params)))
             signature = self.hmac(self.encode(query), self.encode(self.secret), hashlib.sha512)
             url += '?' + query + '&signature=' + signature
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
         return {'url': url, 'method': method, 'body': body, 'headers': headers}
 
     def handle_errors(self, httpCode, reason, url, method, headers, body):

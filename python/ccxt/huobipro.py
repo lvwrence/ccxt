@@ -133,6 +133,7 @@ class huobipro (Exchange):
                 'order-limitorder-amount-min-error': InvalidOrder,  # limit order amount error, min: `0.001`
                 'order-marketorder-amount-min-error': InvalidOrder,  # market order amount error, min: `0.01`
                 'order-limitorder-price-min-error': InvalidOrder,  # limit order price error
+                'order-limitorder-price-max-error': InvalidOrder,  # limit order price error
                 'order-orderstate-error': OrderNotFound,  # canceling an already canceled order
                 'order-queryorder-invalid': OrderNotFound,  # querying a non-existent order
                 'order-update-error': ExchangeNotAvailable,  # undocumented error
@@ -202,7 +203,6 @@ class huobipro (Exchange):
                 'amount': market['amount-precision'],
                 'price': market['price-precision'],
             }
-            lot = math.pow(10, -precision['amount'])
             maker = 0 if (base == 'OMG') else 0.2 / 100
             taker = 0 if (base == 'OMG') else 0.2 / 100
             result.append({
@@ -212,14 +212,13 @@ class huobipro (Exchange):
                 'quote': quote,
                 'baseId': baseId,
                 'quoteId': quoteId,
-                'lot': lot,
                 'active': True,
                 'precision': precision,
                 'taker': taker,
                 'maker': maker,
                 'limits': {
                     'amount': {
-                        'min': lot,
+                        'min': math.pow(10, -precision['amount']),
                         'max': math.pow(10, precision['amount']),
                     },
                     'price': {
@@ -333,6 +332,20 @@ class huobipro (Exchange):
             side = typeParts[0]
             type = typeParts[1]
         amount = self.safe_float_2(trade, 'filled-amount', 'amount')
+        fee = None
+        feeCost = self.safe_float(trade, 'filled-fees')
+        feeCurrency = None
+        if feeCost is not None:
+            feeCurrency = market['base'] if (side == 'buy') else market['quote']
+        else:
+            feeCost = self.safe_float(trade, 'filled-points')
+            if feeCost is not None:
+                feeCurrency = 'HBPOINT'
+        if feeCost is not None:
+            fee = {
+                'cost': feeCost,
+                'currency': feeCurrency,
+            }
         return {
             'info': trade,
             'id': self.safe_string(trade, 'id'),
@@ -344,6 +357,7 @@ class huobipro (Exchange):
             'side': side,
             'price': self.safe_float(trade, 'price'),
             'amount': amount,
+            'fee': fee,
         }
 
     def fetch_my_trades(self, symbol=None, since=None, limit=None, params={}):
@@ -564,7 +578,7 @@ class huobipro (Exchange):
                 if order['symbol'] in self.markets_by_id:
                     marketId = order['symbol']
                     market = self.markets_by_id[marketId]
-        if market:
+        if market is not None:
             symbol = market['symbol']
         timestamp = order['created-at']
         amount = self.safe_float(order, 'amount')
@@ -573,6 +587,7 @@ class huobipro (Exchange):
         price = self.safe_float(order, 'price')
         cost = float(order['field-cash-amount'])
         average = 0
+        # if filled is defined and is not zero
         if filled:
             average = float(cost / filled)
         result = {
@@ -599,7 +614,7 @@ class huobipro (Exchange):
         self.load_markets()
         self.load_accounts()
         market = self.market(symbol)
-        order = {
+        request = {
             'account-id': self.accounts[0]['id'],
             'amount': self.amount_to_precision(symbol, amount),
             'symbol': market['id'],
@@ -610,11 +625,11 @@ class huobipro (Exchange):
                 if price is None:
                     raise InvalidOrder(self.id + " market buy order requires price argument to calculate cost(total amount of quote currency to spend for buying, amount * price). To switch off self warning exception and specify cost in the amount argument, set .options['createMarketBuyOrderRequiresPrice'] = False. Make sure you know what you're doing.")
                 else:
-                    order['amount'] = self.price_to_precision(symbol, float(amount) * float(price))
+                    request['amount'] = self.price_to_precision(symbol, float(amount) * float(price))
         if type == 'limit':
-            order['price'] = self.price_to_precision(symbol, price)
+            request['price'] = self.price_to_precision(symbol, price)
         method = self.options['createOrderMethod']
-        response = getattr(self, method)(self.extend(order, params))
+        response = getattr(self, method)(self.extend(request, params))
         timestamp = self.milliseconds()
         return {
             'info': response,

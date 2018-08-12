@@ -29,8 +29,8 @@ module.exports = class okex extends okcoinusd {
                 'fees': 'https://www.okex.com/fees.html',
             },
             'commonCurrencies': {
-                'CAN': 'Content And AD Network',
                 'FAIR': 'FairGame',
+                'HOT': 'Hydro Protocol',
                 'MAG': 'Maggie',
                 'YOYO': 'YOYOW',
             },

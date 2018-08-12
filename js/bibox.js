@@ -97,6 +97,7 @@ module.exports = class bibox extends Exchange {
             },
             'commonCurrencies': {
                 'KEY': 'Bihu',
+                'PAI': 'PCHAIN',
             },
         });
     }
@@ -128,7 +129,6 @@ module.exports = class bibox extends Exchange {
                 'quoteId': quote,
                 'active': true,
                 'info': market,
-                'lot': Math.pow (10, -precision['amount']),
                 'precision': precision,
                 'limits': {
                     'amount': {
@@ -597,9 +597,12 @@ module.exports = class bibox extends Exchange {
             }, params),
         });
         let address = this.safeString (response, 'result');
+        let tag = undefined; // todo: figure this out
         let result = {
-            'info': response,
+            'currency': code,
             'address': address,
+            'tag': tag,
+            'info': response,
         };
         return result;
     }

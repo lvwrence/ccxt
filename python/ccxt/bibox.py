@@ -115,6 +115,7 @@ class bibox (Exchange):
             },
             'commonCurrencies': {
                 'KEY': 'Bihu',
+                'PAI': 'PCHAIN',
             },
         })
 
@@ -145,7 +146,6 @@ class bibox (Exchange):
                 'quoteId': quote,
                 'active': True,
                 'info': market,
-                'lot': math.pow(10, -precision['amount']),
                 'precision': precision,
                 'limits': {
                     'amount': {
@@ -573,9 +573,12 @@ class bibox (Exchange):
             }, params),
         })
         address = self.safe_string(response, 'result')
+        tag = None  # todo: figure self out
         result = {
-            'info': response,
+            'currency': code,
             'address': address,
+            'tag': tag,
+            'info': response,
         }
         return result
 

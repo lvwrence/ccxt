@@ -16,6 +16,7 @@ class kraken extends Exchange {
             'countries' => array ( 'US' ),
             'version' => '0',
             'rateLimit' => 3000,
+            'certified' => true,
             'has' => array (
                 'createDepositAddress' => true,
                 'fetchDepositAddress' => true,
@@ -198,6 +199,7 @@ class kraken extends Exchange {
                 'EAPI:Rate limit exceeded' => '\\ccxt\\DDoSProtection',
                 'EQuery:Unknown asset' => '\\ccxt\\ExchangeError',
                 'EGeneral:Internal error' => '\\ccxt\\ExchangeNotAvailable',
+                'EGeneral:Temporary lockout' => '\\ccxt\\DDoSProtection',
             ),
         ));
     }

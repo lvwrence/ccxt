@@ -35,6 +35,7 @@ class kraken (Exchange):
             'countries': ['US'],
             'version': '0',
             'rateLimit': 3000,
+            'certified': True,
             'has': {
                 'createDepositAddress': True,
                 'fetchDepositAddress': True,
@@ -217,6 +218,7 @@ class kraken (Exchange):
                 'EAPI:Rate limit exceeded': DDoSProtection,
                 'EQuery:Unknown asset': ExchangeError,
                 'EGeneral:Internal error': ExchangeNotAvailable,
+                'EGeneral:Temporary lockout': DDoSProtection,
             },
         })
 

@@ -39,20 +39,22 @@ module.exports = class coinfalcon extends Exchange {
                     'get': [
                         'user/accounts',
                         'user/orders',
+                        'user/orders/{id}',
                         'user/trades',
                     ],
                     'post': [
                         'user/orders',
                     ],
                     'delete': [
-                        'user/orders',
+                        'user/orders/{id}',
                     ],
                 },
             },
             'fees': {
                 'trading': {
-                    'maker': 0.0025,
-                    'taker': 0.0025,
+                    'tierBased': true,
+                    'maker': 0.0,
+                    'taker': 0.002, // tiered fee starts at 0.2%
                 },
             },
             'precision': {
@@ -224,9 +226,14 @@ module.exports = class coinfalcon extends Exchange {
 
     parseOrder (order, market = undefined) {
         if (typeof market === 'undefined') {
-            market = this.marketsById[order['market']];
+            let marketId = this.safeString (order, 'market');
+            if (marketId in this.markets_by_id)
+                market = this.markets_by_id[marketId];
         }
-        let symbol = market['symbol'];
+        let symbol = undefined;
+        if (typeof market !== 'undefined') {
+            symbol = market['symbol'];
+        }
         let timestamp = this.parse8601 (order['created_at']);
         let price = parseFloat (order['price']);
         let amount = this.safeFloat (order, 'size');
@@ -286,11 +293,19 @@ module.exports = class coinfalcon extends Exchange {
 
     async cancelOrder (id, symbol = undefined, params = {}) {
         await this.loadMarkets ();
-        let response = await this.privateDeleteUserOrders (this.extend ({
+        let response = await this.privateDeleteUserOrdersId (this.extend ({
             'id': id,
         }, params));
         let market = this.market (symbol);
         return this.parseOrder (response['data'], market);
+    }
+
+    async fetchOrder (id, symbol = undefined, params = {}) {
+        await this.loadMarkets ();
+        let response = await this.privateGetUserOrdersId (this.extend ({
+            'id': id,
+        }, params));
+        return this.parseOrder (response['data']);
     }
 
     async fetchOpenOrders (symbol = undefined, since = undefined, limit = undefined, params = {}) {

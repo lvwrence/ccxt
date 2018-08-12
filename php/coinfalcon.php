@@ -40,20 +40,22 @@ class coinfalcon extends Exchange {
                     'get' => array (
                         'user/accounts',
                         'user/orders',
+                        'user/orders/{id}',
                         'user/trades',
                     ),
                     'post' => array (
                         'user/orders',
                     ),
                     'delete' => array (
-                        'user/orders',
+                        'user/orders/{id}',
                     ),
                 ),
             ),
             'fees' => array (
                 'trading' => array (
-                    'maker' => 0.0025,
-                    'taker' => 0.0025,
+                    'tierBased' => true,
+                    'maker' => 0.0,
+                    'taker' => 0.002, // tiered fee starts at 0.2%
                 ),
             ),
             'precision' => array (
@@ -225,9 +227,14 @@ class coinfalcon extends Exchange {
 
     public function parse_order ($order, $market = null) {
         if ($market === null) {
-            $market = $this->marketsById[$order['market']];
+            $marketId = $this->safe_string($order, 'market');
+            if (is_array ($this->markets_by_id) && array_key_exists ($marketId, $this->markets_by_id))
+                $market = $this->markets_by_id[$marketId];
         }
-        $symbol = $market['symbol'];
+        $symbol = null;
+        if ($market !== null) {
+            $symbol = $market['symbol'];
+        }
         $timestamp = $this->parse8601 ($order['created_at']);
         $price = floatval ($order['price']);
         $amount = $this->safe_float($order, 'size');
@@ -287,11 +294,19 @@ class coinfalcon extends Exchange {
 
     public function cancel_order ($id, $symbol = null, $params = array ()) {
         $this->load_markets();
-        $response = $this->privateDeleteUserOrders (array_merge (array (
+        $response = $this->privateDeleteUserOrdersId (array_merge (array (
             'id' => $id,
         ), $params));
         $market = $this->market ($symbol);
         return $this->parse_order($response['data'], $market);
+    }
+
+    public function fetch_order ($id, $symbol = null, $params = array ()) {
+        $this->load_markets();
+        $response = $this->privateGetUserOrdersId (array_merge (array (
+            'id' => $id,
+        ), $params));
+        return $this->parse_order($response['data']);
     }
 
     public function fetch_open_orders ($symbol = null, $since = null, $limit = null, $params = array ()) {

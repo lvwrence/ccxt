@@ -98,6 +98,7 @@ class bibox extends Exchange {
             ),
             'commonCurrencies' => array (
                 'KEY' => 'Bihu',
+                'PAI' => 'PCHAIN',
             ),
         ));
     }
@@ -129,7 +130,6 @@ class bibox extends Exchange {
                 'quoteId' => $quote,
                 'active' => true,
                 'info' => $market,
-                'lot' => pow (10, -$precision['amount']),
                 'precision' => $precision,
                 'limits' => array (
                     'amount' => array (
@@ -598,9 +598,12 @@ class bibox extends Exchange {
             ), $params),
         ));
         $address = $this->safe_string($response, 'result');
+        $tag = null; // todo => figure this out
         $result = array (
-            'info' => $response,
+            'currency' => $code,
             'address' => $address,
+            'tag' => $tag,
+            'info' => $response,
         );
         return $result;
     }

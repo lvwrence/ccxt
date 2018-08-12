@@ -15,6 +15,7 @@ module.exports = class bittrex extends Exchange {
             'countries': [ 'US' ],
             'version': 'v1.1',
             'rateLimit': 1500,
+            'certified': true,
             // new metainfo interface
             'has': {
                 'CORS': true,
@@ -795,6 +796,15 @@ module.exports = class bittrex extends Exchange {
                 throw new ExchangeError (feedback);
             }
         }
+    }
+
+    appendTimezoneParse8601 (x) {
+        let length = x.length;
+        let lastSymbol = x[length - 1];
+        if ((lastSymbol === 'Z') || (x.indexOf ('+') >= 0)) {
+            return this.parse8601 (x);
+        }
+        return this.parse8601 (x + 'Z');
     }
 
     async request (path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {

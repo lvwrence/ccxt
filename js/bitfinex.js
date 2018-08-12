@@ -16,6 +16,7 @@ module.exports = class bitfinex extends Exchange {
             'countries': [ 'VG' ],
             'version': 'v1',
             'rateLimit': 1500,
+            'certified': true,
             // new metainfo interface
             'has': {
                 'CORS': false,
@@ -245,18 +246,27 @@ module.exports = class bitfinex extends Exchange {
                 },
             },
             'commonCurrencies': {
-                'ATM': 'Atonomi', // issue #3383
+                'ABS': 'ABYSS',
+                'AIO': 'AION',
+                'ATM': 'ATMI',
                 'BCC': 'CST_BCC',
                 'BCU': 'CST_BCU',
                 'CTX': 'CTXC',
+                'DAD': 'DADI',
                 'DAT': 'DATA',
-                'DSH': 'DASH', // Bitfinex names Dash as DSH, instead of DASH
+                'DSH': 'DASH',
+                'HOT': 'Hydro Protocol',
                 'IOS': 'IOST',
                 'IOT': 'IOTA',
+                'IQX': 'IQ',
+                'MIT': 'MITH',
                 'MNA': 'MANA',
+                'NCA': 'NCASH',
                 'ORS': 'ORS Group', // conflict with Origin Sport #3230
+                'POY': 'POLY',
                 'QSH': 'QASH',
                 'QTM': 'QTUM',
+                'SEE': 'SEER',
                 'SNG': 'SNGLS',
                 'SPK': 'SPANK',
                 'STJ': 'STORJ',
@@ -274,6 +284,7 @@ module.exports = class bitfinex extends Exchange {
                     'Key price should be a decimal number, e.g. "123.456"': InvalidOrder, // on isNaN (price)
                     'Key amount should be a decimal number, e.g. "123.456"': InvalidOrder, // on isNaN (amount)
                     'ERR_RATE_LIMIT': DDoSProtection,
+                    'Ratelimit': DDoSProtection,
                     'Nonce is too small.': InvalidNonce,
                     'No summary found.': ExchangeError, // fetchTradingFees (summary) endpoint can give this vague error message
                     'Cannot evaluate your available balance, please try again': ExchangeNotAvailable,

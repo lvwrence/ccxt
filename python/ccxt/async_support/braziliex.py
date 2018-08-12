@@ -58,6 +58,7 @@ class braziliex (Exchange):
             },
             'commonCurrencies': {
                 'EPC': 'Epacoin',
+                'ABC': 'Anti Bureaucracy Coin',
             },
             'fees': {
                 'trading': {
@@ -149,7 +150,6 @@ class braziliex (Exchange):
                 'amount': 8,
                 'price': 8,
             }
-            lot = math.pow(10, -precision['amount'])
             result.append({
                 'id': id,
                 'symbol': symbol.upper(),
@@ -158,11 +158,10 @@ class braziliex (Exchange):
                 'baseId': baseId,
                 'quoteId': quoteId,
                 'active': active,
-                'lot': lot,
                 'precision': precision,
                 'limits': {
                     'amount': {
-                        'min': lot,
+                        'min': math.pow(10, -precision['amount']),
                         'max': math.pow(10, precision['amount']),
                     },
                     'price': {
