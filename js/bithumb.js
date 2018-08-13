@@ -310,9 +310,10 @@ module.exports = class bithumb extends Exchange {
         let market = this.market (symbol);
 
         // We get a symbol like 'ZRX/KRW' -- since all trades are fiat, just get the first part (ZRX)
+        const coin = symbol.split('/')[0]
         let request = {
             searchGb: '0',
-            currency: symbol.split('/')[0],
+            currency: coin,
         };
         let response = await this.privatePostInfoUserTransactions (this.extend (request, params));
 
@@ -327,7 +328,7 @@ module.exports = class bithumb extends Exchange {
 
             const side = txn['search'] === '1' ? 'buy' : 'sell'
             const coinAmount = Math.abs(parseFloat(txn['units'].replace(/ /g, ''))) // cuz units is like '+ 123456'
-            const price = parseInt(txn[`${trader.coin.toLowerCase()}1krw`], 10)
+            const price = parseInt(txn[`${coin.toLowerCase()}1krw`], 10)
 
             const fee = side === 'buy' ? parseFloat(txn['fee']) * price : parseFloat(txn['fee'])
 
