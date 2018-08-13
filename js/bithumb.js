@@ -328,10 +328,11 @@ module.exports = class bithumb extends Exchange {
             const side = txn['search'] === '1' ? 'buy' : 'sell'
             const coinAmount = Math.abs(parseFloat(txn['units'].replace(/ /g, ''))) // cuz units is like '+ 123456'
             const price = parseInt(txn[`${trader.coin.toLowerCase()}1krw`], 10)
+
             const fee = side === 'buy' ? parseFloat(txn['fee']) * price : parseFloat(txn['fee'])
+
             // txn['price'] is the price of the transaction.
-            const totalWithoutFeeIfSell = Math.abs(parseInt(txn['price'], 10))
-            const total = side === 'buy' ? totalWithoutFeeIfSell : totalWithoutFeeIfSell + fee
+            const total = Math.abs(parseInt(txn['price'], 10))
             txns.push({
               info: txn,
               id: null,
