@@ -117,7 +117,7 @@ module.exports = class upbit extends Exchange {
       let cancelledTrades = await this.privateGetOrders (this.extend (requestCancelledTrades, params));
 
       for (let txn of [...doneTrades, ...cancelledTrades]) {
-        const coinAmount = this.safeFloat(txn, 'volume') - this.safeFloat(txn, 'remaining_volume')
+        const coinAmount = this.safeFloat(txn, 'executed_volume')
         const price = this.safeFloat(txn, 'avg_price')
         result.push({
           info: txn,
