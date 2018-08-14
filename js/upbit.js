@@ -5,6 +5,8 @@
 const Exchange = require ('./base/Exchange');
 const { ExchangeError } = require ('./base/errors');
 const sign = require('jsonwebtoken').sign;
+const moment = require('moment');
+const _ = require('lodash');
 
 //  ---------------------------------------------------------------------------
 
@@ -98,13 +100,45 @@ module.exports = class upbit extends Exchange {
     async fetchMyTrades (symbol = undefined, since = undefined, limit = undefined, params = {}) {
       if (typeof symbol === 'undefined')
           throw new ExchangeError (this.id + ' fetchMyTrades requires a symbol argument');
-      let request = {
+
+      let result = []
+      let requestDoneTrades = {
         market: this.normalizeSymbol(symbol),
         state: 'done',
         order_by: 'desc',
       }
-      let response = await this.privateGetOrders (this.extend (request, params));
-      return response
+      let doneTrades = await this.privateGetOrders (this.extend (requestDoneTrades, params));
+
+      let requestCancelledTrades = {
+        market: this.normalizeSymbol(symbol),
+        state: 'cancel',
+        order_by: 'desc',
+      }
+      let cancelledTrades = await this.privateGetOrders (this.extend (requestCancelledTrades, params));
+
+      for (let txn of [...doneTrades, ...cancelledTrades]) {
+        const coinAmount = this.safeFloat(txn, 'volume') - this.safeFloat(txn, 'remaining_volume')
+        const price = this.safeFloat(txn, 'avg_price')
+        result.push({
+          info: txn,
+          id: txn.uuid,
+          timestamp: moment(txn['created_at']).valueOf(),
+          datetime: txn['created_at'],
+          symbol,
+          order: txn.uuid,
+          type: 'limit',
+          side: txn.side === 'ask' ? 'sell' : 'buy',
+          takerOrMaker: 'taker',
+          price,
+          amount: coinAmount,
+          cost: coinAmount * price,
+          fee: {
+            cost: this.safeFloat(txn, 'paid_fee'),
+          }
+        })
+      }
+
+      return _.orderBy(result, 'timestamp', 'desc')
     }
 
     async createOrder (symbol, type, side, amount, price = undefined, params = {}) {
