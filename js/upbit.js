@@ -142,8 +142,11 @@ module.exports = class upbit extends Exchange {
     }
 
     async createOrder (symbol, type, side, amount, price = undefined, params = {}) {
+      let actualAmount = amount
       if (side === 'buy') {
         side = 'bid'
+        // Fee is taken from the balance, not the transaction.
+        actualAmount = actualAmount * (1 / 1.0015)
       } else if (side === 'sell') {
         side = 'ask'
       }
@@ -153,7 +156,7 @@ module.exports = class upbit extends Exchange {
         request = {
           market: this.normalizeSymbol(symbol),
           side: side,
-          volume: amount,
+          volume: actualAmount,
           price: price,
           ord_type: 'limit',
         }
@@ -162,7 +165,9 @@ module.exports = class upbit extends Exchange {
       }
 
       let response = await this.privatePostOrders(this.extend (request, params));
-      return response
+      return {
+        id: response['uuid'],  // we only use this
+      }
     }
 
     async cancelOrder(id, symbol = undefined, params = {}) {
