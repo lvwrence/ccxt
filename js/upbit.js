@@ -103,39 +103,39 @@ module.exports = class upbit extends Exchange {
 
       let result = []
       let requestDoneTrades = {
-        market: this.normalizeSymbol(symbol),
-        state: 'done',
-        order_by: 'desc',
+          market: this.normalizeSymbol(symbol),
+          state: 'done',
+          order_by: 'desc',
       }
       let doneTrades = await this.privateGetOrders (this.extend (requestDoneTrades, params));
 
       let requestCancelledTrades = {
-        market: this.normalizeSymbol(symbol),
-        state: 'cancel',
-        order_by: 'desc',
+          market: this.normalizeSymbol(symbol),
+          state: 'cancel',
+          order_by: 'desc',
       }
       let cancelledTrades = await this.privateGetOrders (this.extend (requestCancelledTrades, params));
 
       for (let txn of doneTrades.concat(cancelledTrades)) {
-        const coinAmount = this.safeFloat(txn, 'executed_volume')
-        const price = this.safeFloat(txn, 'avg_price')
-        result.push({
-          info: txn,
-          id: txn.uuid,
-          timestamp: moment(txn['created_at']).valueOf(),
-          datetime: txn['created_at'],
-          symbol,
-          order: txn.uuid,
-          type: 'limit',
-          side: txn.side === 'ask' ? 'sell' : 'buy',
-          takerOrMaker: 'taker',
-          price,
-          amount: coinAmount,
-          cost: coinAmount * price,
-          fee: {
-            cost: this.safeFloat(txn, 'paid_fee'),
-          }
-        })
+          const coinAmount = this.safeFloat(txn, 'executed_volume')
+          const price = this.safeFloat(txn, 'avg_price')
+          result.push({
+              info: txn,
+              id: txn.uuid,
+              timestamp: moment(txn['created_at']).valueOf(),
+              datetime: txn['created_at'],
+              symbol,
+              order: txn.uuid,
+              type: 'limit',
+              side: txn.side === 'ask' ? 'sell' : 'buy',
+              takerOrMaker: 'taker',
+              price,
+              amount: coinAmount,
+              cost: coinAmount * price,
+              fee: {
+                  cost: this.safeFloat(txn, 'paid_fee'),
+              }
+          })
       }
 
       return _.orderBy(result, 'timestamp', 'desc');
