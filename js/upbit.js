@@ -116,7 +116,7 @@ module.exports = class upbit extends Exchange {
       }
       let cancelledTrades = await this.privateGetOrders (this.extend (requestCancelledTrades, params));
 
-      for (let txn of [...doneTrades, ...cancelledTrades]) {
+      for (let txn of doneTrades.concat(cancelledTrades)) {
         const coinAmount = this.safeFloat(txn, 'executed_volume')
         const price = this.safeFloat(txn, 'avg_price')
         result.push({
@@ -138,7 +138,7 @@ module.exports = class upbit extends Exchange {
         })
       }
 
-      return _.orderBy(result, 'timestamp', 'desc')
+      return _.orderBy(result, 'timestamp', 'desc');
     }
 
     async createOrder (symbol, type, side, amount, price = undefined, params = {}) {
