@@ -118,7 +118,7 @@ module.exports = class upbit extends Exchange {
 
       for (let txn of doneTrades.concat(cancelledTrades)) {
           const coinAmount = this.safeFloat(txn, 'executed_volume')
-          const price = this.safeFloat(txn, 'avg_price')
+          const price = this.safeFloat(txn, 'avg_price') || this.safeFloat(txn, 'price')
           result.push({
               info: txn,
               id: txn.uuid,
