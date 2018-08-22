@@ -119,6 +119,16 @@ module.exports = class upbit extends Exchange {
       for (let txn of doneTrades.concat(cancelledTrades)) {
           const coinAmount = this.safeFloat(txn, 'executed_volume')
           const price = this.safeFloat(txn, 'avg_price') || this.safeFloat(txn, 'price')
+          const fee = this.safeFloat(txn, 'paid_fee')
+
+          let totalCost = coinAmount * price
+          if (txn.side === 'ask') {
+            // if it's a sell, need to subtract fee
+            totalCost -= fee
+          } else {
+            // if it's a buy, need to add fee
+            totalCost += fee
+          }
           result.push({
               info: txn,
               id: txn.uuid,
@@ -131,9 +141,9 @@ module.exports = class upbit extends Exchange {
               takerOrMaker: 'taker',
               price,
               amount: coinAmount,
-              cost: coinAmount * price,
+              cost: totalCost,
               fee: {
-                  cost: this.safeFloat(txn, 'paid_fee'),
+                  cost: fee,
               }
           })
       }
