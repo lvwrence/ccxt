@@ -101,6 +101,10 @@ module.exports = class upbit extends Exchange {
       if (typeof symbol === 'undefined')
           throw new ExchangeError (this.id + ' fetchMyTrades requires a symbol argument');
 
+      if (params.state === 'wait') {
+        return await this._fetchMyWaitTrades(symbol)
+      }
+
       let result = []
       let requestDoneTrades = {
           market: this.normalizeSymbol(symbol),
@@ -149,6 +153,16 @@ module.exports = class upbit extends Exchange {
       }
 
       return _.orderBy(result, 'timestamp', 'desc');
+    }
+
+    async _fetchMyWaitTrades (symbol = undefined) {
+      let requestWaitTrades = {
+          market: this.normalizeSymbol(symbol),
+          state: 'wait',
+          order_by: 'desc',
+      }
+      let waitTrades = await this.privateOrders (requestWaitTrades);
+      return _.orderBy(waitTrades, 'timestamp', 'asc');
     }
 
     async createOrder (symbol, type, side, amount, price = undefined, params = {}) {
