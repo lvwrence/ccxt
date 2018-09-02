@@ -161,7 +161,7 @@ module.exports = class upbit extends Exchange {
           state: 'wait',
           order_by: 'desc',
       }
-      let waitTrades = await this.privateOrders (requestWaitTrades);
+      let waitTrades = await this.privateGetOrders (requestWaitTrades);
       return _.orderBy(waitTrades, 'timestamp', 'asc');
     }
 
