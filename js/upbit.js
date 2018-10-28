@@ -136,7 +136,7 @@ module.exports = class upbit extends Exchange {
           result.push({
               info: txn,
               id: txn.uuid,
-              timestamp: moment(txn['created_at']).valueOf(),
+              timestamp: moment(txn['created_at']).valueOf() * 1000, // Convert to microseconds to normalize with bithumb.
               datetime: txn['created_at'],
               symbol,
               order: txn.uuid,
